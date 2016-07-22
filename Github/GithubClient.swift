@@ -6,16 +6,18 @@
 import Foundation
 import AFNetworking
 
-private let reposUrl = "https://api.github.com/search/repositories?q=swift"
+private let reposUrl = "https://api.github.com/search/repositories"
 
 class GithubClient  {
 
     let httpRequestOperationManager = AFHTTPRequestOperationManager()
 
-    func getRepositories(successCallBack : (NSDictionary) -> Void) -> Void {
+    func getRepositories(searchTerm : String, successCallBack : (NSDictionary) -> Void) -> Void {
+        let reposUrlWithSearchTerm = reposUrl + "?q=" + searchTerm
+        print(reposUrlWithSearchTerm)
         var response : NSDictionary!
         httpRequestOperationManager.GET(
-        reposUrl,
+        reposUrlWithSearchTerm,
         parameters: nil,
         success: {
             (httpRequestOperation, httpResponseObject) -> Void in

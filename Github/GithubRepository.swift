@@ -41,7 +41,7 @@ var name : String?
         }
     }
 
-    static func getRepositories(completion: ([GithubRepository]) -> Void) {
+    static func getRepositories(searchTerm : String, completion: ([GithubRepository]) -> Void) {
         var githubRepositories : [GithubRepository] = []
         let githubClient = GithubClient()
         /* getting repositories from mocked data file */
@@ -57,16 +57,26 @@ var name : String?
 //            completion(githubRepositories)
 //        }
         /* getting repositories from network call */
-        githubClient.getRepositories { (fileContents) in
-                let totalCount = fileContents["total_count"] as? Int
-                print(totalCount)
-                let items = fileContents["items"] as! [NSDictionary]
-                for item in items {
-                    let githubRepository: GithubRepository = GithubRepository(githubResponse: item)
-                    githubRepositories.append(githubRepository)
-                }
+        githubClient.getRepositories(searchTerm, successCallBack: { (fileContents) in
+            let totalCount = fileContents["total_count"] as? Int
+            print(totalCount)
+            let items = fileContents["items"] as! [NSDictionary]
+            for item in items {
+                let githubRepository: GithubRepository = GithubRepository(githubResponse: item)
+                githubRepositories.append(githubRepository)
+            }
             completion(githubRepositories)
-        }
+        })
+//        githubClient.getRepositories (searchTerm, { (fileContents) in
+//                let totalCount = fileContents["total_count"] as? Int
+//                print(totalCount)
+//                let items = fileContents["items"] as! [NSDictionary]
+//                for item in items {
+//                    let githubRepository: GithubRepository = GithubRepository(githubResponse: item)
+//                    githubRepositories.append(githubRepository)
+//                }
+//            completion(githubRepositories)
+//        })
     }
 
     // Creates a text representation of a GitHub repo

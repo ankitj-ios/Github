@@ -12,7 +12,13 @@ class GithubRepoViewController: UIViewController, UITableViewDataSource, UITable
 
     @IBOutlet weak var repositoriesTableView: UITableView!
     
+    var searchBar : UISearchBar!
+    
     var githubRepositories : [GithubRepository]! = [GithubRepository]()
+    
+    @IBAction func onTap(sender: AnyObject) {
+        self.resignFirstResponder()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,7 +26,15 @@ class GithubRepoViewController: UIViewController, UITableViewDataSource, UITable
         // Do any additional setup after loading the view.
 
         print("view loaded ... ")
-
+        
+        // Initialize the UISearchBar
+        searchBar = UISearchBar()
+        searchBar.delegate = self
+        
+        // Add SearchBar to the NavigationBar
+        searchBar.sizeToFit()
+        navigationItem.titleView = searchBar
+        
 //        var githubRepositories : [GithubRepository] = []
 //        var fileContents : NSDictionary? = FileUtils.readFileContents("github-search", fileType: "json")
 //
@@ -34,12 +48,6 @@ class GithubRepoViewController: UIViewController, UITableViewDataSource, UITable
 //                githubRepositories.append(githubRepository)
 //            }
 //        }
-        GithubRepository.getRepositories { (githubRepositories) in
-            self.githubRepositories = githubRepositories
-            print("=== count : \(self.githubRepositories.count)")
-//            print(githubRepositories)
-            self.repositoriesTableView.reloadData()
-        }
         
         /* for table view */
         self.repositoriesTableView.dataSource = self
@@ -49,8 +57,25 @@ class GithubRepoViewController: UIViewController, UITableViewDataSource, UITable
         self.repositoriesTableView.rowHeight = UITableViewAutomaticDimension
         self.repositoriesTableView.estimatedRowHeight = 120
 
+        fetchGithubRepositories("swift");
     }
-
+    
+    func fetchGithubRepositories(searchTerm : String) -> Void {
+        GithubRepository.getRepositories(searchTerm,
+         completion: { (githubRepositories) in
+            self.githubRepositories = githubRepositories
+            print("=== count : \(self.githubRepositories.count)")
+            //            print(githubRepositories)
+            self.repositoriesTableView.reloadData()
+            }
+        )
+//        GithubRepository.getRepositories { (githubRepositories) in
+//            self.githubRepositories = githubRepositories
+//            print("=== count : \(self.githubRepositories.count)")
+//            //            print(githubRepositories)
+//            self.repositoriesTableView.reloadData()
+//        }
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -98,4 +123,25 @@ class GithubRepoViewController: UIViewController, UITableViewDataSource, UITable
     }
     */
 
+}
+
+extension GithubRepoViewController : UISearchBarDelegate {
+    
+    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+        searchBar.setShowsCancelButton(true, animated: false)
+    }
+    
+    func searchBarTextDidEndEditing(searchBar: UISearchBar) {
+        searchBar.setShowsCancelButton(false, animated: false)
+    }
+    
+    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        fetchGithubRepositories(searchBar.text!)
+        searchBar.resignFirstResponder()
+    }
 }
