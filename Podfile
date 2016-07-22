@@ -6,6 +6,8 @@ target 'Github' do
   use_frameworks!
 
   # Pods for Github
+  pod 'AFNetworking', '~> 2.5'
+  pod 'BDBOAuth1Manager'
 
   target 'GithubTests' do
     inherit! :search_paths
