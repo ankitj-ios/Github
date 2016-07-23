@@ -8,16 +8,32 @@
 
 import UIKit
 
-class GithubRepoViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+protocol GithubSettingsDelegate : class {
+    func onSettingsSave(githubSearchSettings : GithubSearchSettings)
+    func onSettingsCancel()
+}
+
+class GithubRepoViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, GithubSettingsDelegate {
 
     @IBOutlet weak var repositoriesTableView: UITableView!
     
     var searchBar : UISearchBar!
     
     var githubRepositories : [GithubRepository]! = [GithubRepository]()
+    var githubSearchSettings : GithubSearchSettings! = GithubSearchSettings()
     
     @IBAction func onTap(sender: AnyObject) {
         self.resignFirstResponder()
+    }
+    
+    func onSettingsSave(githubSearchSettings: GithubSearchSettings) {
+        self.githubSearchSettings = githubSearchSettings
+        fetchGithubRepositories(githubSearchSettings)
+        print("In Repo Controller : settings saved ....")
+    }
+    
+    func onSettingsCancel() {
+        print("In Repo Controller : settings cancel ... ")
     }
     
     override func viewDidLoad() {
@@ -57,11 +73,11 @@ class GithubRepoViewController: UIViewController, UITableViewDataSource, UITable
         self.repositoriesTableView.rowHeight = UITableViewAutomaticDimension
         self.repositoriesTableView.estimatedRowHeight = 120
 
-        fetchGithubRepositories("swift");
+        fetchGithubRepositories(githubSearchSettings);
     }
     
-    func fetchGithubRepositories(searchTerm : String) -> Void {
-        GithubRepository.getRepositories(searchTerm,
+    func fetchGithubRepositories(githubSearchSettings : GithubSearchSettings) -> Void {
+        GithubRepository.getRepositories(githubSearchSettings,
          completion: { (githubRepositories) in
             self.githubRepositories = githubRepositories
             print("=== count : \(self.githubRepositories.count)")
@@ -113,15 +129,21 @@ class GithubRepoViewController: UIViewController, UITableViewDataSource, UITable
         }
         return githubRepositoryCell
     }
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
+        
+        print("on settings button press ... ")
+        let navigationController = segue.destinationViewController as! UINavigationController
+        let githubSettingsViewController = navigationController.topViewController as! GithubSettingViewController
+        githubSettingsViewController.githubSearchSettings = self.githubSearchSettings
+        githubSettingsViewController.delegate = self
     }
-    */
+    
 
 }
 
@@ -141,7 +163,8 @@ extension GithubRepoViewController : UISearchBarDelegate {
     }
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
-        fetchGithubRepositories(searchBar.text!)
+        githubSearchSettings.searchQueryTerm = searchBar.text
+        fetchGithubRepositories(githubSearchSettings)
         searchBar.resignFirstResponder()
     }
 }

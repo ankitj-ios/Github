@@ -41,7 +41,7 @@ var name : String?
         }
     }
 
-    static func getRepositories(searchTerm : String, completion: ([GithubRepository]) -> Void) {
+    static func getRepositories(githubSearchSettings : GithubSearchSettings, completion: ([GithubRepository]) -> Void) {
         var githubRepositories : [GithubRepository] = []
         let githubClient = GithubClient()
         /* getting repositories from mocked data file */
@@ -57,7 +57,7 @@ var name : String?
 //            completion(githubRepositories)
 //        }
         /* getting repositories from network call */
-        githubClient.getRepositories(searchTerm, successCallBack: { (fileContents) in
+        githubClient.getRepositories(githubSearchSettings, successCallBack: { (fileContents) in
             let totalCount = fileContents["total_count"] as? Int
             print(totalCount)
             let items = fileContents["items"] as! [NSDictionary]
